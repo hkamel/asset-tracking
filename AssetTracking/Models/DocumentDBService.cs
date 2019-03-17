@@ -12,6 +12,7 @@ namespace AssetTracking.Models
     public class DocumentDBService
     {
         private DocumentDBConfiguration _configuration;
+        private FeedOptions option = new FeedOptions { EnableCrossPartitionQuery = true };
 
         public DocumentDBService(DocumentDBConfiguration configuration)
         {
@@ -21,28 +22,28 @@ namespace AssetTracking.Models
         internal int CountDocuments()
         {
             DocumentClient client = new DocumentClient(new Uri(_configuration.Host), _configuration.Key);
-            IEnumerable<int> results = client.CreateDocumentQuery<int>(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT VALUE COUNT(assets.id) FROM assets");
+            IEnumerable<int> results = client.CreateDocumentQuery<int>(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT VALUE COUNT(assets.id) FROM assets",option);
             return results.FirstOrDefault();
         }
 
         internal string GetLatestAssetName()
         {
             DocumentClient client = new DocumentClient(new Uri(_configuration.Host), _configuration.Key);
-            IEnumerable<string> results = client.CreateDocumentQuery<string>(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT TOP 1 VALUE assets.name FROM assets ORDER BY assets._ts DESC");
+            IEnumerable<string> results = client.CreateDocumentQuery<string>(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT TOP 1 VALUE assets.name FROM assets ORDER BY assets._ts DESC",option);
             return results.FirstOrDefault();
         }
 
         internal int AverageCost()
         {
             DocumentClient client = new DocumentClient(new Uri(_configuration.Host), _configuration.Key);
-            IEnumerable<int> results = client.CreateDocumentQuery<int>(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT VALUE AVG(assets.cost) FROM assets");
+            IEnumerable<int> results = client.CreateDocumentQuery<int>(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT VALUE AVG(assets.cost) FROM assets",option);
             return results.FirstOrDefault();
         }
 
         public IEnumerable<dynamic> GetDocuments()
         {
             DocumentClient client = new DocumentClient(new Uri(_configuration.Host), _configuration.Key);
-            IEnumerable<dynamic> results = client.CreateDocumentQuery(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT * FROM assets");
+            IEnumerable<dynamic> results = client.CreateDocumentQuery(new Uri(_configuration.CollectionUrl, UriKind.Relative), "SELECT * FROM assets",option);
             return results;
         }
     }
